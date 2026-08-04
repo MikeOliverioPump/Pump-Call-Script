@@ -216,3 +216,715 @@
     text-align:left;
     background:var(--paper);
     border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .12s, background .12s;
+  }
+  .opt-btn:hover{border-color:var(--accent);background:var(--accent-soft);}
+  .opt-btn .hint{
+    display:block;
+    font-size:12.5px;
+    font-weight:400;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+
+  .cta{
+    margin-top:22px;
+    padding:14px 16px;
+    background:var(--accent-soft);
+    border:1px solid var(--accent);
+    border-radius:10px;
+    font-size:14px;
+    color:var(--accent-deep);
+    font-weight:600;
+  }
+
+  .opt-preview{
+    display:block;
+    font-size:12.5px;
+    font-weight:400;
+    color:var(--ink-soft);
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+    line-height:1.4;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:20px;
+  }
+
+  .map-toggle{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 18px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    margin-top:16px;
+  }
+  .map-toggle:hover{border-color:var(--accent);}
+  .map-toggle .chev{float:right;color:var(--ink-soft);font-weight:400;}
+
+  .map-panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 12px;
+    margin-top:10px;
+    overflow-x:auto;
+  }
+  .map-panel.hidden{display:none;}
+
+  .fc-panel-title{
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    margin:18px 0 8px 2px;
+  }
+  .fc-panel-title:first-child{margin-top:2px;}
+
+  .fc-box{cursor:pointer;}
+  .fc-box rect{transition:stroke-width .1s ease;}
+  .fc-box:hover rect{stroke-width:2.5;}
+  .fc-box text{font-family:inherit;pointer-events:none;}
+  .fc-active rect{stroke-width:3;}
+
+  .fc-decision rect{fill:var(--amber-soft);stroke:var(--amber);stroke-width:1.3;}
+  .fc-decision text{fill:var(--amber);}
+
+  .fc-pitch rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.3;}
+  .fc-pitch text{fill:var(--accent-deep);}
+
+  .fc-terminal rect{fill:#eef0f2;stroke:#c3c9cc;stroke-width:1.3;}
+  .fc-terminal text{fill:#3d474a;}
+
+  .fc-pointer rect{fill:var(--paper);stroke:var(--line);stroke-width:1.3;stroke-dasharray:4,3;}
+  .fc-pointer text{fill:var(--ink-soft);}
+
+  .fc-arrow{stroke:var(--ink-soft);stroke-width:1.4;fill:none;}
+  .fc-arrowlabel{font-size:10.5px;fill:var(--ink-soft);font-weight:600;}
+
+  .pinned-bar{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    background:var(--accent-deep);
+    color:#fff;
+    padding:12px 20px;
+    box-shadow:0 -2px 10px rgba(0,0,0,0.12);
+    z-index:50;
+    cursor:pointer;
+  }
+  .pinned-bar-inner{
+    max-width:760px;
+    margin:0 auto;
+  }
+  .pinned-label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#bfe3d6;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .pinned-label .chev{font-weight:400;text-transform:none;letter-spacing:0;color:#bfe3d6;}
+  .pinned-text{
+    font-size:15px;
+    line-height:1.5;
+    margin-top:6px;
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .18s ease;
+  }
+  .pinned-bar.open .pinned-text{max-height:320px;margin-bottom:2px;}
+  .pinned-bar.open .pinned-label{margin-bottom:0;}
+  .ghost-btn{
+    background:var(--card);
+    border:1.5px solid var(--line);
+    color:var(--ink);
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+    padding:14px 20px;
+    border-radius:10px;
+  }
+  .ghost-btn:hover{border-color:var(--accent);color:var(--accent-deep);background:var(--accent-soft);}
+  .restart-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    font-size:13px;
+    cursor:pointer;
+    padding:8px 14px;
+    border-radius:8px;
+  }
+  .restart-btn:hover{border-color:var(--accent);color:var(--accent-deep);}
+
+  @media (max-width:480px){
+    .card{padding:22px 18px;}
+    .script-line{font-size:16.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Pump &middot; cold call script</div>
+    <h1>Discovery call navigator</h1>
+    <p class="sub">Click your prospect's answer as you go. The next line and question load automatically.</p>
+  </header>
+
+  <div class="trail" id="trail"></div>
+  <div class="card" id="card"></div>
+  <div class="controls">
+    <button class="ghost-btn" id="backBtn" onclick="goBack()">&larr; back one step</button>
+    <button class="restart-btn" onclick="restart()">Reset</button>
+  </div>
+  <button class="map-toggle" onclick="toggleMap()" id="mapToggleBtn">
+    View script flowchart — jump to any branch anytime<span class="chev" id="mapChev">show &darr;</span>
+  </button>
+  <div class="map-panel hidden" id="mapPanel"></div>
+</div>
+
+<div class="obj-col">
+  <div class="obj-heading">Common objections</div>
+  <input type="text" class="obj-search" id="objSearch" placeholder="Search objections…" oninput="filterObjections(this.value)">
+  <div class="obj-tabs" id="objTabs"></div>
+</div>
+
+<div class="pinned-bar" id="pinnedBar" onclick="togglePinned()">
+  <div class="pinned-bar-inner">
+    <div class="pinned-label">Estimate — tap to read<span class="chev" id="pinnedChev">show &uarr;</span></div>
+    <div class="pinned-text">Basically our algorithm looks at your billing history and recommends RIs and SPs which usually results in 20-30% free savings.<br><br>We also underwrite these, which allows us to make more aggressive recommendations getting you up to 90-99% coverage with no risk to you.<br><br>We can give you a concrete savings estimate in under 5 minutes if it would help to see that number. Would you be open to running a savings estimate with us to see how much money we could save you?</div>
+  </div>
+</div>
+
+<script>
+const tree = {
+  open: {
+    tag: 'say',
+    lines: [
+      "Hey [name], this is [you] from Pump — how are you?",
+      "Yeah, sorry — I know this is pretty random. The reason I was calling is because we're partners with AWS, GCP, and Azure, and they actually pay us directly to help their customers save on their cloud bills completely for free. I was just curious to see which one of those platforms you were on."
+    ],
+    prompt: "On AWS, GCP, or Azure?",
+    options: [
+      { label: "Yes", next: "coverage_intro" },
+      { label: "No", next: "llm_platforms" }
+    ]
+  },
+
+  llm_platforms: {
+    tag: 'ask',
+    lines: [],
+    prompt: "Do you spend on any LLMs/APIs with OpenAI or Anthropic?",
+    options: [
+      { label: "Yes", next: "pitch_llm" },
+      { label: "No", next: "other_platforms" }
+    ]
+  },
+
+  pitch_llm: {
+    tag: 'say',
+    lines: [
+      "We have a product that saves 20 to 30% on your LLM costs and also helps with governance."
+    ],
+    terminal: true,
+    cta: "Next step: qualify budget owner for LLM spend and offer a savings estimate call."
+  },
+
+  other_platforms: {
+    tag: 'ask',
+    lines: [],
+    prompt: "Anything on OracleCloud, DataDog, or ClickHouse?",
+    options: [
+      { label: "Yes", next: "pitch_billing" },
+      { label: "No", next: "visualize_costs" }
+    ]
+  },
+
+  pitch_billing: {
+    tag: 'say',
+    lines: [
+      "We're able to save 20 to 30% here just on the billing layer as well."
+    ],
+    terminal: true,
+    cta: "Next step: identify who owns the billing relationship and offer a savings estimate call."
+  },
+
+  coverage_intro: {
+    tag: 'ask',
+    lines: [
+      "I assume you have a DevOps team handling cost optimization."
+    ],
+    prompt: "Do you have any RIs or SPs / CUDs or SUDs (for GCP) in place today?",
+    options: [
+      { label: "Yes", next: "coverage_known" },
+      { label: "No", next: "pitch_underwriting" }
+    ]
+  },
+
+  coverage_known: {
+    tag: 'ask',
+    lines: [],
+    prompt: "Do you know what your coverage % is?",
+    options: [
+      { label: "Yes — under 99%", next: "pitch_coverage" },
+      { label: "Yes — 99%+", next: "visualize_costs", hint: "Already well covered — pivot to Pump View" },
+      { label: "Not sure", next: "pitch_underwriting" }
+    ]
+  },
+
+  pitch_underwriting: {
+    tag: 'say',
+    lines: [
+      "We underwrite these contracts so that you can commit more aggressively to fill in your coverage gap without taking on any risk yourself.",
+      "We get customers up to 97% to 99% on average."
+    ],
+    prompt: null,
+    options: [
+      { label: "Continue →", next: "estimate" }
+    ]
+  },
+
+  estimate: {
+    tag: 'ask',
+    lines: [
+      "Basically our algorithm looks at your billing history and recommends RIs and SPs which usually results in 20-30% free savings depending on what provider you're on, how much you spend, and how optimized you are already."
+    ],
+    prompt: "Do you have a rough estimate of how much your bill was last month?",
+    options: [
+      { label: "Continue to estimate →", next: "estimate_short" }
+    ]
+  },
+
+  pitch_coverage: {
+    tag: 'say',
+    lines: [
+      "Typically, the companies that we work with are between 70% and 90% covered with reserved instances and savings plans. We underwrite these contracts so that you can commit more aggressively to fill in your coverage gap without taking on any risk yourself.",
+      "We get customers up to 97% to 99% on average."
+    ],
+    prompt: null,
+    options: [
+      { label: "Qualify →", next: "qualify_coverage" }
+    ]
+  },
+
+  qualify_coverage: {
+    tag: 'ask',
+    lines: [
+      "Basically our algorithm looks at your billing history and recommends RIs and SPs which usually results in 20-30% free savings depending on what provider you're on, how much you spend, and how optimized you are already."
+    ],
+    prompt: "Do you have a rough estimate of how much your bill was last month?",
+    options: [
+      { label: "Continue to estimate →", next: "estimate_short" }
+    ]
+  },
+
+  estimate_short: {
+    tag: 'ask',
+    lines: [
+      "We can give you a concrete savings estimate in under 5 minutes if it would help to see that number."
+    ],
+    prompt: "Would you be open to running a savings estimate with us to see how much money we could save you?",
+    options: [
+      { label: "Yes", next: "book_estimate" },
+      { label: "No", next: "visualize_costs" }
+    ]
+  },
+
+  visualize_costs: {
+    tag: 'ask',
+    lines: [],
+    prompt: "How are you visualizing your costs across your clouds today?",
+    options: [
+      { label: "Continue →", next: "pitch_unified" }
+    ]
+  },
+
+  pitch_unified: {
+    tag: 'say',
+    lines: [
+      "We also have a tool that showcases your costs across 30 different providers and creates a unified pane between finance and engineering for collaboration."
+    ],
+    prompt: "Still not interested?",
+    options: [
+      { label: "Yes, still not interested", next: "pitch_infra" },
+      { label: "No — they're interested", next: "book_demo" }
+    ]
+  },
+
+  pitch_infra: {
+    tag: 'say',
+    lines: [
+      "We can also make infrastructure recommendations through our ex-AWS, GCP, and Azure Solutions Architects, which can help lower costs even further.",
+      "Our security posture management tool can also help you scan for compliance across 30+ frameworks, including automated pen-testing.",
+      "And if you're using Kubernetes, we also have a 4D autoscaler that can help bring those costs down."
+    ],
+    terminal: true,
+    cta: "Next step: identify the infra/platform owner and offer a lightweight audit."
+  },
+
+  book_demo: {
+    tag: 'done',
+    lines: [
+      "Great — let's get some time on the calendar to show you Pump View."
+    ],
+    terminal: true,
+    cta: "Next step: book a Pump View demo and send calendar invite."
+  },
+
+  book_estimate: {
+    tag: 'done',
+    lines: [
+      "Great — let's get a savings estimate scheduled. I'll just need read-only access to your billing data, nothing that touches production."
+    ],
+    terminal: true,
+    cta: "Next step: book the savings estimate call and send calendar invite."
+  }
+};
+
+let path = ['open'];
+
+function render(direction) {
+  const currentId = path[path.length - 1];
+  const node = tree[currentId];
+  const card = document.getElementById('card');
+
+  const tagLabel = node.tag === 'say' ? 'Say' : node.tag === 'ask' ? 'Ask' : 'Next step';
+
+  let html = `<span class="tag ${node.tag}">${tagLabel}</span>`;
+
+  node.lines.forEach(line => {
+    html += `<p class="script-line">${line}</p>`;
+  });
+
+  if (node.prompt) {
+    html += `<p class="prompt">${node.terminal ? '' : 'Qualifying question'}</p>`;
+    html += `<p class="script-line"><span class="qmark">&ldquo;</span>${node.prompt}<span class="qmark">&rdquo;</span></p>`;
+  }
+
+  if (node.options) {
+    html += `<div class="options" style="margin-top:20px;">`;
+    node.options.forEach(opt => {
+      const targetNode = tree[opt.next];
+      const preview = previewFor(targetNode);
+      html += `<button class="opt-btn" onclick="choose('${opt.next}')">${opt.label}${opt.hint ? `<span class="hint">${opt.hint}</span>` : ''}<span class="opt-preview">${preview}</span></button>`;
+    });
+    html += `</div>`;
+  }
+
+  if (node.terminal && node.cta) {
+    html += `<div class="cta">${node.cta}</div>`;
+  }
+
+  const swapAndSlideIn = () => {
+    card.innerHTML = html;
+    void card.offsetWidth; // force reflow so the entering transform actually animates
+    card.style.transform = direction === 'back' ? 'translateY(-16px)' : 'translateY(16px)';
+    card.style.opacity = '0';
+    void card.offsetWidth;
+    card.style.transform = 'translateY(0)';
+    card.style.opacity = '1';
+  };
+
+  if (direction) {
+    // slide the current content out first, then swap in the new content
+    card.style.transform = direction === 'back' ? 'translateY(10px)' : 'translateY(-10px)';
+    card.style.opacity = '0';
+    setTimeout(swapAndSlideIn, 180);
+  } else {
+    card.innerHTML = html;
+  }
+
+  document.getElementById('backBtn').style.visibility = path.length > 1 ? 'visible' : 'hidden';
+  renderTrail();
+  if (!document.getElementById('mapPanel').classList.contains('hidden')) renderMap();
+}
+
+function renderTrail() {
+  const trail = document.getElementById('trail');
+  let html = '';
+  path.forEach((id, i) => {
+    const label = trailLabel(id, i);
+    const isLast = i === path.length - 1;
+    html += `<span class="chip ${isLast ? 'current' : ''}" onclick="${isLast ? '' : `jumpTo(${i})`}">${label}</span>`;
+    if (!isLast) html += `<span class="arrow">&rarr;</span>`;
+  });
+  trail.innerHTML = html;
+}
+
+function trailLabel(id, index) {
+  const names = {
+    open: 'Open',
+    coverage_intro: 'AWS/GCP/Azure',
+    llm_platforms: 'LLM platform?',
+    other_platforms: 'Other platform?',
+    pitch_llm: 'LLM pitch',
+    pitch_billing: 'Billing pitch',
+    coverage_known: 'Know coverage %?',
+    pitch_coverage: 'Coverage <99%',
+    pitch_underwriting: 'Underwriting pitch',
+    qualify_coverage: 'Qualify',
+    estimate: 'Estimate ask',
+    estimate_short: 'Estimate ask',
+    visualize_costs: 'Visualization Q',
+    pitch_unified: 'Pump View pitch',
+    pitch_infra: 'Infra pivot',
+    book_demo: 'Book demo',
+    book_estimate: 'Book estimate'
+  };
+  return names[id] || id;
+}
+
+function previewFor(node) {
+  const source = node.lines.length ? node.lines[0] : (node.prompt || '');
+  const short = source.length > 80 ? source.slice(0, 80).trim() + '\u2026' : source;
+  return (node.tag === 'ask' && !node.lines.length ? short : '\u201c' + short + '\u201d');
+}
+
+function fcClass(id, base) {
+  return path[path.length - 1] === id ? `${base} fc-active` : base;
+}
+
+function fcBox(id, base, x, y, w, h, lines) {
+  const textLines = Array.isArray(lines) ? lines : [lines];
+  const lineHeight = 15;
+  const startY = y + h / 2 - ((textLines.length - 1) * lineHeight) / 2;
+  const texts = textLines.map((line, i) =>
+    `<text x="${x + w / 2}" y="${startY + i * lineHeight}" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600">${line}</text>`
+  ).join('');
+  return `<g class="fc-box ${fcClass(id, base)}" onclick="jumpToNode('${id}')">
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>
+    ${texts}
+  </g>`;
+}
+
+function fcArrow(x1, y1, x2, y2, label, labelX, labelY) {
+  const lbl = label ? `<text class="fc-arrowlabel" x="${labelX}" y="${labelY}">${label}</text>` : '';
+  return `<path class="fc-arrow" d="M${x1} ${y1} L${x2} ${y2}" marker-end="url(#fcArrowhead)"/>${lbl}`;
+}
+
+function fcElbow(points, label, labelX, labelY) {
+  const d = points.map((p, i) => (i === 0 ? `M${p[0]} ${p[1]}` : `L${p[0]} ${p[1]}`)).join(' ');
+  const lbl = label ? `<text class="fc-arrowlabel" x="${labelX}" y="${labelY}">${label}</text>` : '';
+  return `<path class="fc-arrow" d="${d}" marker-end="url(#fcArrowhead)"/>${lbl}`;
+}
+
+function fcMarkerDefs() {
+  return `<defs><marker id="fcArrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="var(--ink-soft)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker></defs>`;
+}
+
+function renderPanel1() {
+  return `<svg viewBox="0 0 660 360" width="100%" role="img">
+    <title>Opening and platform qualification</title>
+    ${fcMarkerDefs()}
+    ${fcBox('open', 'fc-decision', 50, 20, 300, 44, 'On AWS, GCP, or Azure?')}
+    ${fcBox('coverage_intro', 'fc-pointer', 400, 20, 220, 44, '\u2192 Commitment path')}
+    ${fcArrow(350, 42, 400, 42, 'yes', 358, 34)}
+    ${fcArrow(200, 64, 200, 104, 'no', 208, 88)}
+
+    ${fcBox('llm_platforms', 'fc-decision', 50, 104, 300, 44, "Spend on Anthropic/OpenAI APIs?")}
+    ${fcBox('pitch_llm', 'fc-terminal', 400, 104, 220, 44, 'Pitch LLM savings')}
+    ${fcArrow(350, 126, 400, 126, 'yes', 358, 118)}
+    ${fcArrow(200, 148, 200, 188, 'no', 208, 172)}
+
+    ${fcBox('other_platforms', 'fc-decision', 50, 188, 300, 44, 'Oracle, DataDog, or ClickHouse?')}
+    ${fcBox('pitch_billing', 'fc-terminal', 400, 188, 220, 44, 'Billing pitch')}
+    ${fcArrow(350, 210, 400, 210, 'yes', 358, 202)}
+    ${fcArrow(200, 232, 200, 272, 'no', 208, 256)}
+
+    ${fcBox('visualize_costs', 'fc-pointer', 50, 272, 300, 44, '\u2192 Visualize costs (panel 3)')}
+  </svg>`;
+}
+
+function renderPanel2() {
+  return `<svg viewBox="0 0 660 460" width="100%" role="img">
+    <title>Commitment and coverage path</title>
+    ${fcMarkerDefs()}
+    ${fcBox('coverage_intro', 'fc-decision', 50, 20, 300, 44, 'Have RIs/SPs/CUDs/SUDs?')}
+    ${fcBox('pitch_underwriting', 'fc-pitch', 400, 20, 220, 56, ['Underwriting pitch', '+ estimate intro'])}
+    ${fcArrow(350, 42, 400, 48, 'no', 358, 34)}
+    ${fcArrow(200, 64, 200, 104, 'yes', 208, 88)}
+
+    ${fcBox('coverage_known', 'fc-decision', 50, 104, 300, 44, 'Know coverage %?')}
+    ${fcBox('visualize_costs', 'fc-pointer', 400, 104, 220, 44, '\u2192 Visualize costs')}
+    ${fcArrow(350, 118, 400, 118, '99%+', 358, 112)}
+    ${fcElbow([[350, 138], [380, 138], [380, 48], [400, 48]], 'not sure', 355, 150)}
+    ${fcArrow(200, 148, 200, 188, '<99%', 206, 172)}
+
+    ${fcBox('pitch_coverage', 'fc-pitch', 50, 188, 300, 56, ['Coverage pitch', '(70-90% typical \u2192 97-99%)'])}
+    ${fcArrow(200, 244, 200, 280, null, 0, 0)}
+
+    ${fcElbow([[510, 76], [580, 76], [580, 260], [300, 260], [300, 280]], null, 0, 0)}
+
+    ${fcBox('estimate_short', 'fc-decision', 50, 280, 300, 44, 'Open to a savings estimate?')}
+    ${fcBox('book_estimate', 'fc-terminal', 400, 280, 220, 44, 'Book estimate')}
+    ${fcArrow(350, 302, 400, 302, 'yes', 358, 294)}
+    ${fcArrow(200, 324, 200, 364, 'no', 208, 348)}
+
+    ${fcBox('visualize_costs', 'fc-pointer', 50, 364, 300, 44, '\u2192 Visualize costs (panel 3)')}
+  </svg>`;
+}
+
+function renderPanel3() {
+  return `<svg viewBox="0 0 660 280" width="100%" role="img">
+    <title>Visualization and objection path</title>
+    ${fcMarkerDefs()}
+    ${fcBox('visualize_costs', 'fc-pitch', 170, 20, 300, 44, 'How do you visualize costs today?')}
+    ${fcArrow(320, 64, 320, 104, null, 0, 0)}
+
+    ${fcBox('pitch_unified', 'fc-decision', 170, 104, 300, 56, ['Pump View pitch', 'Still not interested?'])}
+    ${fcArrow(250, 160, 180, 200, 'still not interested', 130, 182)}
+    ${fcArrow(390, 160, 500, 200, 'interested', 420, 182)}
+
+    ${fcBox('pitch_infra', 'fc-terminal', 40, 200, 280, 44, 'Infra pivot pitch')}
+    ${fcBox('book_demo', 'fc-terminal', 360, 200, 280, 44, 'Book Pump View demo')}
+  </svg>`;
+}
+
+function renderMap() {
+  document.getElementById('mapPanel').innerHTML = `
+    <div class="fc-panel-title">1. Opening &amp; platform qualification</div>
+    ${renderPanel1()}
+    <div class="fc-panel-title">2. Commitment &amp; coverage path</div>
+    ${renderPanel2()}
+    <div class="fc-panel-title">3. Visualization &amp; objection path</div>
+    ${renderPanel3()}
+  `;
+}
+
+function toggleMap() {
+  const panel = document.getElementById('mapPanel');
+  const chev = document.getElementById('mapChev');
+  const hidden = panel.classList.toggle('hidden');
+  chev.textContent = hidden ? 'show \u2193' : 'hide \u2191';
+  if (!hidden) renderMap();
+}
+
+function togglePinned() {
+  const bar = document.getElementById('pinnedBar');
+  const chev = document.getElementById('pinnedChev');
+  const isOpen = bar.classList.toggle('open');
+  chev.textContent = isOpen ? 'hide \u2193' : 'show \u2191';
+}
+
+const objections = [
+  { title: "How are you free?", answer: null },
+  { title: "We're already optimized", answer: null },
+  { title: "We use a competitor", answer: null },
+  { title: "Just send me an email", answer: null },
+  { title: "I don't have time for this", answer: null },
+  { title: "We are on an EDP", answer: null },
+  { title: "What if our usage changes drastically?", answer: "That's exactly what our no-risk policy covers. For example, say we recommend a $5,000/month RDS SQL commitment for 3 years. After 15 months, you migrate everything to Aurora and usage drops to zero. You'd normally owe $5K/month for the remaining 21 months. With Pump, we pay you $5,000/month for those 21 months. We eat the cost if our recommendation is wrong." },
+  { title: "We need to manage infra ourselves", answer: "Ya that's not a problem. You maintain complete control. Pump makes the recommendations, but you decide what to implement. If you already have an AWS account manager you like, you keep them - we're additive, not a replacement. Our solutions architect is also available for architectural reviews, second opinions, or even hands-on implementation if needed." },
+  { title: "What's the onboarding timeline?", answer: "Only takes 30 minutes with four easy steps. Initial savings appear within 72 hours due to API lag between Microsoft/Google/AWS and our systems. Full savings ramp up over 2 weeks as we incrementally optimize. We do recommend a side-by-side call early on to validate our assumptions about your future usage.<br><br>We like to say you can onboard and offboard 20 times in a day if you'd like." },
+  { title: "What's the catch?", answer: "I totally understand the skepticism - most cost optimization solutions do have hidden fees or percentage-based pricing. With Pump, we're completely free because we're an AWS/GCP/Azure reseller. The cloud providers pay us to improve retention - they've learned that optimized customers stay on their platform longer rather than switching to competitors. We also take billing and support work off their plate." },
+  { title: "We need to get legal approval first", answer: "Completely understand - the estimate process actually starts with signing an NDA to protect your data. Our full terms are at pump.co/legal. The whole process takes about 3 minutes: collect info, sign NDA, deploy a read-only CloudFormation stack. Would you prefer we coordinate with your legal team via email, or can we at least run through the NDA today?" },
+  { title: "How much manual work does this add?", answer: "Great question - you have two options. You can turn on autopilot mode where everything happens automatically, or you can manage it manually with email/Slack notifications. Most customers choose autopilot. Plus, you get a dedicated account manager and solutions architect with 8-minute response time and 40-minute resolution time. The initial setup takes about 30 minutes total." }
+];
+
+let openObjections = new Set();
+let objSearchTerm = '';
+
+function renderObjections() {
+  const tabsEl = document.getElementById('objTabs');
+  const term = objSearchTerm.trim().toLowerCase();
+
+  const visibleIndexes = objections
+    .map((o, i) => i)
+    .filter(i => !term || objections[i].title.toLowerCase().includes(term));
+
+  if (visibleIndexes.length === 0) {
+    tabsEl.innerHTML = `<div class="obj-empty">No objections match "${objSearchTerm}"</div>`;
+    return;
+  }
+
+  tabsEl.innerHTML = visibleIndexes.map(i => {
+    const o = objections[i];
+    const isOpen = openObjections.has(i);
+    return `
+      <div class="obj-item">
+        <button class="obj-tab ${isOpen ? 'active' : ''}" onclick="toggleObjection(${i})">
+          <span>${o.title}</span>
+          <span class="obj-chev">${isOpen ? '\u2212' : '+'}</span>
+        </button>
+        <div class="obj-answer ${isOpen ? 'open' : ''}">
+          <div class="obj-answer-inner">
+            ${o.answer ? o.answer : '<span class="placeholder">Answer coming soon.</span>'}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterObjections(value) {
+  objSearchTerm = value;
+  renderObjections();
+}
+
+function toggleObjection(i) {
+  if (openObjections.has(i)) {
+    openObjections.delete(i);
+  } else {
+    openObjections.add(i);
+  }
+  renderObjections();
+}
+
+function jumpToNode(id) {
+  path = [id];
+  render('forward');
+  document.getElementById('card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function choose(nextId) {
+  path.push(nextId);
+  render('forward');
+  document.getElementById('card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function goBack() {
+  if (path.length > 1) {
+    path.pop();
+    render('back');
+  }
+}
+
+function jumpTo(index) {
+  path = path.slice(0, index + 1);
+  render('back');
+}
+
+function restart() {
+  path = ['open'];
+  render('back');
+}
+
+render();
+renderObjections();
+</script>
+</body>
+</html>
