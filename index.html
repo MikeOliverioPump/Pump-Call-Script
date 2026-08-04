@@ -121,8 +121,44 @@
     background:var(--accent-deep);
   }
   .obj-answer-inner{padding:10px 14px 14px;}
-  .obj-answer.open{max-height:600px;}
+  .obj-answer.open{max-height:2200px;}
   .obj-answer .placeholder{color:#bfe3d6;font-style:italic;}
+
+  .comp-list{display:flex;flex-direction:column;gap:6px;}
+  .comp-item{background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;}
+  .comp-tab{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    padding:10px 12px;
+    color:#fff;
+    font-weight:600;
+    font-size:13.5px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .comp-tab:hover{background:rgba(255,255,255,0.1);}
+  .comp-chev{color:#bfe3d6;font-weight:400;font-size:15px;}
+  .comp-answer{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .2s ease;
+    font-size:13px;
+    line-height:1.5;
+    color:#e8f7f1;
+  }
+  .comp-answer-inner{padding:0 12px 12px;}
+  .comp-answer.open{max-height:900px;}
+  .comp-answer .placeholder{color:#bfe3d6;font-style:italic;}
+  .comp-answer table{width:100%;border-collapse:collapse;font-size:11.5px;margin:8px 0;}
+  .comp-answer th,.comp-answer td{border:1px solid rgba(255,255,255,0.25);padding:5px 6px;text-align:left;vertical-align:top;}
+  .comp-answer th{background:rgba(255,255,255,0.1);}
+  .comp-answer .comp-note{margin-top:8px;}
+  .comp-answer .comp-note div{margin-bottom:12px;}
+  .comp-answer .comp-note div:last-child{margin-bottom:0;}
   header{margin-bottom:24px;}
   .eyebrow{
     font-size:12px;
@@ -830,13 +866,93 @@ function togglePinned() {
   chev.textContent = isOpen ? 'hide \u2193' : 'show \u2191';
 }
 
+const competitors = [
+  { name: "Antimetal", answer: `
+    <div class="comp-note">
+      <div>Antimetal is basically AWS-only and only covers a handful of services. We support 8-9 more services than they do, including ECS, ElastiCache, OpenSearch, SageMaker, EBS, RedShift, DynamoDB, and more, across AWS, GCP, and Azure.</div>
+      <div>Antimetal charges $599/month for Slack support, a CSM, and SSO. We include all of that for free.</div>
+      <div>We can also waive and extend the expiry of your AWS credits by an additional year when you join - something Antimetal doesn't offer.</div>
+    </div>
+  ` },
+  { name: "DoiT", answer: `
+    <div class="comp-note">
+      <div>We're completely free, forever. DoIT charges $30K a year just for support, and they only take customers spending over $30K a month to begin with.</div>
+      <div>With DoIT, you're on the hook if you over-commit. We underwrite that risk - if our recommendation is wrong, we cover it, not you.</div>
+      <div>DoIT's optimization is really just EC2. We optimize across 12 to 15 services, which is usually why customers see 20 to 30% more in savings with us.</div>
+    </div>
+  ` },
+  { name: "Vantage", answer: `
+    <div class="comp-note">
+      <div>Vantage charges a tiered subscription plus takes a cut of your savings. We're 100% free, regardless of how much you spend.</div>
+      <div>Vantage is really a cost visibility tool - it doesn't automate savings for you. We actively drive savings through AI-powered automation, group discounts, and customized commitment plans.</div>
+      <div>Vantage mostly just shows you your commitment coverage; it doesn't help you optimize it. We actively manage and adjust commitments to fit how your usage changes.</div>
+    </div>
+  ` },
+  { name: "Archera", answer: `
+    <div class="comp-note">
+      <div>Archera takes a percentage of your savings and locks you into a one-year contract with a premium added on top. We're 100% free with no contracts - cancel anytime.</div>
+      <div>We support 23 services on AWS compared to Archera's 11, and we also save on GCP, which Archera doesn't cover at all.</div>
+      <div>We can give you $5K per AWS account you onboard and waive the expiry on your existing credits - Archera offers neither.</div>
+    </div>
+  ` },
+  { name: "nOps", answer: `
+    <div class="comp-note">
+      <div>nOps charges around 25% of your savings. We don't charge anything at all.</div>
+      <div>nOps typically finds 10-30% in savings. We typically find 30-60%, since we save money in 3 different ways instead of just one.</div>
+      <div>With nOps, you take on full risk if you overcommit. We have a no-loss policy, so it's impossible to lose money on our recommendations.</div>
+    </div>
+  ` },
+  { name: "Usage AI", answer: `
+    <div class="comp-note">
+      <div>Usage.AI charges around 25% of your savings. We're 100% free.</div>
+      <div>Usage.AI only covers EC2, RedShift, RDS, OpenSearch, and Elasticache. We cover 7-10 more services than that.</div>
+      <div>With Usage.AI, you take on the risk of any overcommitments. We have a no-loss policy, so that risk is on us, not you.</div>
+    </div>
+  ` },
+  { name: "Zesty", answer: `
+    <div class="comp-note">
+      <div>Zesty takes 25% of whatever savings they find. We're 100% free.</div>
+      <div>Zesty only supports EC2. We support 11-14 more services than that.</div>
+      <div>That combination usually means we find customers 20-40% more in savings - and Zesty also requires a $7,000/month minimum spend to even qualify, which we don't.</div>
+    </div>
+  ` },
+  { name: "Kubecost", answer: `
+    <div class="comp-note">
+      <div>Kubecost is really a Kubernetes cost-reporting tool - it doesn't manage RIs, SPs, or CUDs the way we do across your whole AWS, GCP, and Azure spend.</div>
+      <div>Kubecost's deeper features sit behind paid Business and Enterprise tiers with fixed-term subscriptions. We're free with no contracts.</div>
+      <div>Kubecost customers take on the risk of their own commitments and only get email/ticket support. We carry that risk with our no-loss policy and give you 24/7 Slack access plus a dedicated account manager.</div>
+    </div>
+  ` },
+  { name: "Cloudzero", answer: `
+    <div class="comp-note">
+      <div>Cloudzero runs on a subscription-based tiered pricing model with fixed-term renewals. We're 100% free with no contracts.</div>
+      <div>Cloudzero is primarily built for AWS, with weak support for GCP and Azure. We support AWS, GCP, and Azure equally.</div>
+      <div>With Cloudzero, you take on the risk of your own commitments and only get AWS-focused email/ticket support. We carry that risk with our no-loss policy and give you 24/7 Slack access plus a dedicated account manager.</div>
+    </div>
+  ` },
+  { name: "IBM Turbonomic", answer: `
+    <div class="comp-note">
+      <div>Turbonomic starts at $40,000 a year. We're 100% free forever.</div>
+      <div>Turbonomic locks you into a fixed-term subscription with penalties and no refunds. We're cancel-anytime with no long-term contracts.</div>
+      <div>With Turbonomic, you take on the risk of your own commitments and only get email/chat support. We carry that risk with our no-loss policy and give you 24/7 Slack access plus a dedicated account manager.</div>
+    </div>
+  ` },
+  { name: "Cloud Health", answer: `
+    <div class="comp-note">
+      <div>Cloud Health charges a minimum $1,000 fee plus 3% of your total cloud spend. We're 100% free.</div>
+      <div>Cloud Health locks you into a fixed-term subscription with automatic renewals and complicated contract terms. We're cancel-anytime with no long-term contracts.</div>
+      <div>With Cloud Health, you take on the risk of your own commitments and only get email/ticket support. We carry that risk with our no-loss policy and give you 24/7 Slack access plus a dedicated account manager.</div>
+    </div>
+  ` }
+];
+
 const objections = [
-  { title: "How are you free?", answer: null },
-  { title: "We're already optimized", answer: null },
-  { title: "We use a competitor", answer: null },
-  { title: "Just send me an email", answer: null },
-  { title: "I don't have time for this", answer: null },
-  { title: "We are on an EDP", answer: null },
+  { title: "How are you free?", answer: "Great question! So we actually get paid by AWS, GCP, and Azure directly. The reason for this is 3-fold: 1st, we consolidate billing, so instead of chasing bills for all of these customers, we send them one big bill inclusive of all of the 1500 customers we manage. 2nd, we also provide full support including account managers and ex-AWS, GCP, Azure solutions architects which reduces their overhead support needs. And finally, we help support what they call the \"protect the realm initiative\" - this is basically just helping with customer retention on each of the respective hyperscalers. If you save with us on AWS, you won't jump ship to GCP and try and find better savings there. Does that make sense?" },
+  { title: "We're already optimized", answer: "Ya most of the teams we work with are already optimizing on their own. What we do differently is we underwrite the optimization process. This lets us be more aggressive with commitments, unlocking additional savings while also providing a safety net in case you ever end up overcommitted. Essentially, we move the risk from you to us which usually lets us find untapped savings." },
+  { title: "We use a competitor", competitors: competitors },
+  { title: "Just send me an email", answer: "Ya I can absolutely send you an email. I can also give you a concrete savings estimate in less than 5 minutes. Would it work if I just put something tentative on your calendar as a backstop, and if you like what you see via email, we can have that in place?<br><br>You don't have to accept it now, and you can reschedule as needed." },
+  { title: "I don't have time for this", answer: "Are you on AWS, GCP, or Azure?<br><br>Do you spend over 30k?<br><br>We can give you a concrete savings estimate in under 5 minutes if it would help to see that number. Would you be open to running a savings estimate with us to see how much money we could save you?" },
+  { title: "We are on an EDP", answer: "Ask: Do you know when that contract is expiring or up for renewal?<br><br>If you are up for renewal or the contract expires soon, we can do what's called a Partner-Led PPA. Through this we can: provide a reduction of both growth targets and your enterprise support costs. And we can use our relationship with the hyperscalers to negotiate an increase in flat discounts." },
   { title: "What if our usage changes drastically?", answer: "That's exactly what our no-risk policy covers. For example, say we recommend a $5,000/month RDS SQL commitment for 3 years. After 15 months, you migrate everything to Aurora and usage drops to zero. You'd normally owe $5K/month for the remaining 21 months. With Pump, we pay you $5,000/month for those 21 months. We eat the cost if our recommendation is wrong." },
   { title: "We need to manage infra ourselves", answer: "Ya that's not a problem. You maintain complete control. Pump makes the recommendations, but you decide what to implement. If you already have an AWS account manager you like, you keep them - we're additive, not a replacement. Our solutions architect is also available for architectural reviews, second opinions, or even hands-on implementation if needed." },
   { title: "What's the onboarding timeline?", answer: "Only takes 30 minutes with four easy steps. Initial savings appear within 72 hours due to API lag between Microsoft/Google/AWS and our systems. Full savings ramp up over 2 weeks as we incrementally optimize. We do recommend a side-by-side call early on to validate our assumptions about your future usage.<br><br>We like to say you can onboard and offboard 20 times in a day if you'd like." },
@@ -845,8 +961,33 @@ const objections = [
   { title: "How much manual work does this add?", answer: "Great question - you have two options. You can turn on autopilot mode where everything happens automatically, or you can manage it manually with email/Slack notifications. Most customers choose autopilot. Plus, you get a dedicated account manager and solutions architect with 8-minute response time and 40-minute resolution time. The initial setup takes about 30 minutes total." }
 ];
 
-let openObjections = new Set();
+let openObjection = null;
+let openCompetitor = null;
 let objSearchTerm = '';
+
+function renderCompetitorList() {
+  return `<div class="comp-list">` + competitors.map(c => {
+    const isOpen = openCompetitor === c.name;
+    return `
+      <div class="comp-item">
+        <button class="comp-tab" onclick="event.stopPropagation(); toggleCompetitor('${c.name}')">
+          <span>${c.name}</span>
+          <span class="comp-chev">${isOpen ? '\u2212' : '+'}</span>
+        </button>
+        <div class="comp-answer ${isOpen ? 'open' : ''}">
+          <div class="comp-answer-inner">
+            ${c.answer ? c.answer : '<span class="placeholder">Battle card coming soon.</span>'}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('') + `</div>`;
+}
+
+function toggleCompetitor(name) {
+  openCompetitor = (openCompetitor === name) ? null : name;
+  renderObjections();
+}
 
 function renderObjections() {
   const tabsEl = document.getElementById('objTabs');
@@ -863,7 +1004,10 @@ function renderObjections() {
 
   tabsEl.innerHTML = visibleIndexes.map(i => {
     const o = objections[i];
-    const isOpen = openObjections.has(i);
+    const isOpen = openObjection === i;
+    const bodyHtml = o.competitors
+      ? renderCompetitorList()
+      : (o.answer ? o.answer : '<span class="placeholder">Answer coming soon.</span>');
     return `
       <div class="obj-item">
         <button class="obj-tab ${isOpen ? 'active' : ''}" onclick="toggleObjection(${i})">
@@ -872,7 +1016,7 @@ function renderObjections() {
         </button>
         <div class="obj-answer ${isOpen ? 'open' : ''}">
           <div class="obj-answer-inner">
-            ${o.answer ? o.answer : '<span class="placeholder">Answer coming soon.</span>'}
+            ${bodyHtml}
           </div>
         </div>
       </div>
@@ -886,11 +1030,8 @@ function filterObjections(value) {
 }
 
 function toggleObjection(i) {
-  if (openObjections.has(i)) {
-    openObjections.delete(i);
-  } else {
-    openObjections.add(i);
-  }
+  openObjection = (openObjection === i) ? null : i;
+  openCompetitor = null;
   renderObjections();
 }
 
