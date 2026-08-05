@@ -460,7 +460,7 @@ const tree = {
     tag: 'say',
     lines: [
       "Hey [name], this is [you] from Pump — how are you?",
-      "Yeah, sorry — I know this is pretty random. The reason I was calling is because we're partners with AWS, GCP, and Azure, and they actually pay us directly to help their customers save on their cloud bills completely for free. I was just curious to see which one of those platforms you were on."
+      "Yeah, sorry — I know this is pretty random. The reason I was calling is because we are partners with AWS, GCP, and Azure. Just curious to see which one of those platforms you were on."
     ],
     prompt: "On AWS, GCP, or Azure?",
     options: [
@@ -510,9 +510,10 @@ const tree = {
   coverage_intro: {
     tag: 'ask',
     lines: [
-      "I assume you have a DevOps team handling cost optimization."
+      "Great, ya we're advanced-tier partners with them. Basically they pay us directly to help their customers save for free.",
+      "I assume you have a team dedicated to cost optimization."
     ],
-    prompt: "Do you have any RIs or SPs / CUDs or SUDs (for GCP) in place today?",
+    prompt: "Do you know if you have any RIs or SPs / CUDs or SUDs (for GCP) in place today?",
     options: [
       { label: "Yes", next: "coverage_known" },
       { label: "No", next: "pitch_underwriting" }
@@ -947,12 +948,15 @@ const competitors = [
 ];
 
 const objections = [
-  { title: "How are you free?", answer: "Great question! So we actually get paid by AWS, GCP, and Azure directly. The reason for this is 3-fold: 1st, we consolidate billing, so instead of chasing bills for all of these customers, we send them one big bill inclusive of all of the 1500 customers we manage. 2nd, we also provide full support including account managers and ex-AWS, GCP, Azure solutions architects which reduces their overhead support needs. And finally, we help support what they call the \"protect the realm initiative\" - this is basically just helping with customer retention on each of the respective hyperscalers. If you save with us on AWS, you won't jump ship to GCP and try and find better savings there. Does that make sense?" },
+  { title: "How are you free?", answer: "Great question! So we actually get paid by AWS, GCP, and Azure directly. The reason for this is 3-fold:<br><br>1st, <strong>CONSOLIDATE BILLING</strong> - instead of chasing bills for all of these customers, we send them one big bill inclusive of all of the 1500 customers we manage.<br><br>2nd, <strong>PROVIDE SUPPORT</strong> - we also provide full support including account managers and ex-AWS, GCP, Azure solutions architects which reduces their overhead support needs.<br><br>And finally, <strong>CUSTOMER RETENTION</strong> - we help support what they call the \"protect the realm initiative\" - this is basically just helping with customer retention on each of the respective hyperscalers. If you save with us on AWS, you won't jump ship to GCP and try and find better savings there. Does that make sense?" },
   { title: "We're already optimized", answer: "Ya most of the teams we work with are already optimizing on their own. What we do differently is we underwrite the optimization process. This lets us be more aggressive with commitments, unlocking additional savings while also providing a safety net in case you ever end up overcommitted. Essentially, we move the risk from you to us which usually lets us find untapped savings." },
   { title: "We use a competitor", competitors: competitors },
   { title: "Just send me an email", answer: "Ya I can absolutely send you an email. I can also give you a concrete savings estimate in less than 5 minutes. Would it work if I just put something tentative on your calendar as a backstop, and if you like what you see via email, we can have that in place?<br><br>You don't have to accept it now, and you can reschedule as needed." },
   { title: "I don't have time for this", answer: "Are you on AWS, GCP, or Azure?<br><br>Do you spend over 30k?<br><br>We can give you a concrete savings estimate in under 5 minutes if it would help to see that number. Would you be open to running a savings estimate with us to see how much money we could save you?" },
-  { title: "We are on an EDP", answer: "Ask: Do you know when that contract is expiring or up for renewal?<br><br>If you are up for renewal or the contract expires soon, we can do what's called a Partner-Led PPA. Through this we can: provide a reduction of both growth targets and your enterprise support costs. And we can use our relationship with the hyperscalers to negotiate an increase in flat discounts." },
+  { title: "We are on an EDP", intro: "Ask: Do you know when that contract is expiring or up for renewal?", subItems: [
+    { name: "Looking to Resign", answer: "If you are up for renewal or the contract expires soon, we can do what's called a Partner-Led PPA. Through this we can: provide a reduction of both growth targets and your enterprise support costs. And we can use our relationship with the hyperscalers to negotiate an increase in flat discounts." },
+    { name: "Not Resigning", answer: "If you are not resigning, we can usually find you comparable savings completely for free while getting rid of growth targets and support costs entirely.<br><br>We would then be able to provide you enterprise support for free." }
+  ] },
   { title: "What if our usage changes drastically?", answer: "That's exactly what our no-risk policy covers. For example, say we recommend a $5,000/month RDS SQL commitment for 3 years. After 15 months, you migrate everything to Aurora and usage drops to zero. You'd normally owe $5K/month for the remaining 21 months. With Pump, we pay you $5,000/month for those 21 months. We eat the cost if our recommendation is wrong." },
   { title: "We need to manage infra ourselves", answer: "Ya that's not a problem. You maintain complete control. Pump makes the recommendations, but you decide what to implement. If you already have an AWS account manager you like, you keep them - we're additive, not a replacement. Our solutions architect is also available for architectural reviews, second opinions, or even hands-on implementation if needed." },
   { title: "What's the onboarding timeline?", answer: "Only takes 30 minutes with four easy steps. Initial savings appear within 72 hours due to API lag between Microsoft/Google/AWS and our systems. Full savings ramp up over 2 weeks as we incrementally optimize. We do recommend a side-by-side call early on to validate our assumptions about your future usage.<br><br>We like to say you can onboard and offboard 20 times in a day if you'd like." },
@@ -962,15 +966,15 @@ const objections = [
 ];
 
 let openObjection = null;
-let openCompetitor = null;
+let openSubItem = null;
 let objSearchTerm = '';
 
-function renderCompetitorList() {
-  return `<div class="comp-list">` + competitors.map(c => {
-    const isOpen = openCompetitor === c.name;
+function renderSubItemList(items) {
+  return `<div class="comp-list">` + items.map(c => {
+    const isOpen = openSubItem === c.name;
     return `
       <div class="comp-item">
-        <button class="comp-tab" onclick="event.stopPropagation(); toggleCompetitor('${c.name}')">
+        <button class="comp-tab" onclick="event.stopPropagation(); toggleSubItem('${c.name}')">
           <span>${c.name}</span>
           <span class="comp-chev">${isOpen ? '\u2212' : '+'}</span>
         </button>
@@ -984,8 +988,8 @@ function renderCompetitorList() {
   }).join('') + `</div>`;
 }
 
-function toggleCompetitor(name) {
-  openCompetitor = (openCompetitor === name) ? null : name;
+function toggleSubItem(name) {
+  openSubItem = (openSubItem === name) ? null : name;
   renderObjections();
 }
 
@@ -1006,7 +1010,9 @@ function renderObjections() {
     const o = objections[i];
     const isOpen = openObjection === i;
     const bodyHtml = o.competitors
-      ? renderCompetitorList()
+      ? renderSubItemList(o.competitors)
+      : o.subItems
+      ? (o.intro ? `<div style="margin-bottom:12px;">${o.intro}</div>` : '') + renderSubItemList(o.subItems)
       : (o.answer ? o.answer : '<span class="placeholder">Answer coming soon.</span>');
     return `
       <div class="obj-item">
@@ -1031,7 +1037,7 @@ function filterObjections(value) {
 
 function toggleObjection(i) {
   openObjection = (openObjection === i) ? null : i;
-  openCompetitor = null;
+  openSubItem = null;
   renderObjections();
 }
 
