@@ -204,13 +204,39 @@
   }
   .chip .arrow{opacity:.4;font-size:11px;}
 
+  .section-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .section-tab{
+    flex:1;
+    text-align:center;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    font-weight:700;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:border-color .12s, background .12s, color .12s;
+  }
+  .section-tab:hover{border-color:var(--accent);color:var(--accent-deep);}
+  .section-tab.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+
   .card{
     background:var(--card);
     border:1px solid var(--line);
     border-radius:14px;
     padding:28px 28px 26px;
     box-shadow:0 1px 2px rgba(21,32,33,0.04);
-    transition:opacity .28s ease, transform .28s ease;
+    transition:opacity .28s ease, transform .28s ease, height .28s ease;
+    overflow:hidden;
   }
 
   .tag{
@@ -279,6 +305,16 @@
     color:var(--accent-deep);
     font-weight:600;
   }
+
+  .cta ul{
+    margin:6px 0 0;
+    padding-left:18px;
+  }
+  .cta li{
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  .cta li:last-child{margin-bottom:0;}
 
   .opt-preview{
     display:block;
@@ -430,6 +466,11 @@
   </header>
 
   <div class="trail" id="trail"></div>
+  <div class="section-tabs" id="sectionTabs">
+    <button class="section-tab" onclick="jumpToNode('open')">Cloud</button>
+    <button class="section-tab" onclick="jumpToNode('llm_platforms')">LLM</button>
+    <button class="section-tab" onclick="jumpToNode('visualize_costs')">View</button>
+  </div>
   <div class="card" id="card"></div>
   <div class="controls">
     <button class="ghost-btn" id="backBtn" onclick="goBack()">&larr; back one step</button>
@@ -482,16 +523,21 @@ const tree = {
   pitch_llm: {
     tag: 'say',
     lines: [
-      "We have a product that saves 20 to 30% on your LLM costs and also helps with governance."
+      "We have a product that can save you up to 60% on LLM costs.<br><br>",
+      "<strong>Model Routing:</strong> Routes each query to the most efficient model for the task across frontier and open-source models, helping improve reliability while reducing token and inference usage.",
+      "<strong>Token Compression:</strong> Reduces unnecessary context in prompts before they are sent to the model, lowering token usage while maintaining necessary pertinent information.",
+      "<strong>Batch Processing:</strong> Groups workloads and runs them when pricing or capacity is more favorable, helping reduce token usage.",
+      "<strong>Prompt Caching:</strong> Reuses previously processed prompt context when the same or similar inputs are sent repeatedly, reducing redundant computation and lowering token usage.",
+      "<strong>Guardrails and budget alerts</strong> to manage the usage across your organization and team."
     ],
     terminal: true,
-    cta: "Next step: qualify budget owner for LLM spend and offer a savings estimate call."
+    cta: "<strong>Next Steps:</strong><ul><li>Pitch View if you haven't already.</li><li>Qualify budget owner for LLM spend and offer a savings estimate call.</li></ul>"
   },
 
   other_platforms: {
     tag: 'ask',
     lines: [],
-    prompt: "Anything on OracleCloud, DataDog, or ClickHouse?",
+    prompt: "Do you use any SaaS tools like Datadog, Clickhouse, Github, Snowflake, any others like that?",
     options: [
       { label: "Yes", next: "pitch_billing" },
       { label: "No", next: "visualize_costs" }
@@ -592,7 +638,7 @@ const tree = {
   visualize_costs: {
     tag: 'ask',
     lines: [],
-    prompt: "How are you visualizing your costs across your clouds today?",
+    prompt: "How are you visualizing your costs across your clouds today?<br><br>Are you just using the native cost explorers that the hyperscalers provide, or do you have a tool built out specifically for cost visualization?",
     options: [
       { label: "Continue →", next: "pitch_unified" }
     ]
@@ -601,12 +647,17 @@ const tree = {
   pitch_unified: {
     tag: 'say',
     lines: [
-      "We also have a tool that showcases your costs across 30 different providers and creates a unified pane between finance and engineering for collaboration."
+      "We also have a tool that showcases your costs across all clouds, LLM's, and 30+ SaaS tools in one unified portal.",
+      "This includes:",
+      "<strong>Automatic anomaly detection</strong>",
+      "<strong>Tag allocation</strong>",
+      "<strong>Budget alerts</strong> (set hard caps and customize granularity)",
+      "<strong>Custom reports</strong> sent to email or Slack at preferred levels of granularity."
     ],
-    prompt: "Still not interested?",
+    prompt: null,
     options: [
-      { label: "Yes, still not interested", next: "pitch_infra" },
-      { label: "No — they're interested", next: "book_demo" }
+      { label: "Still not interested", next: "pitch_infra" },
+      { label: "Interested", next: "book_demo" }
     ]
   },
 
@@ -624,7 +675,7 @@ const tree = {
   book_demo: {
     tag: 'done',
     lines: [
-      "Great — let's get some time on the calendar to show you Pump View."
+      "Cool, I can send you some info about it and actually show you the tool in more depth on a quick call. If you have 5 minutes this week."
     ],
     terminal: true,
     cta: "Next step: book a Pump View demo and send calendar invite."
@@ -633,10 +684,10 @@ const tree = {
   book_estimate: {
     tag: 'done',
     lines: [
-      "Great — let's get a savings estimate scheduled. I'll just need read-only access to your billing data, nothing that touches production."
+      "Great — let's get a savings estimate scheduled."
     ],
     terminal: true,
-    cta: "Next step: book the savings estimate call and send calendar invite."
+    cta: "<strong>Next Steps:</strong><ul><li>Pitch LLM and View if you haven't already.</li><li>Book the savings estimate call and send calendar invite.</li></ul>"
   }
 };
 
@@ -674,28 +725,64 @@ function render(direction) {
     html += `<div class="cta">${node.cta}</div>`;
   }
 
-  const swapAndSlideIn = () => {
-    card.innerHTML = html;
-    void card.offsetWidth; // force reflow so the entering transform actually animates
-    card.style.transform = direction === 'back' ? 'translateY(-16px)' : 'translateY(16px)';
-    card.style.opacity = '0';
-    void card.offsetWidth;
-    card.style.transform = 'translateY(0)';
-    card.style.opacity = '1';
+  const applySideEffects = () => {
+    document.getElementById('backBtn').style.visibility = path.length > 1 ? 'visible' : 'hidden';
+    renderTrail();
+    renderSectionTabs();
+    if (!document.getElementById('mapPanel').classList.contains('hidden')) renderMap();
   };
 
-  if (direction) {
-    // slide the current content out first, then swap in the new content
-    card.style.transform = direction === 'back' ? 'translateY(10px)' : 'translateY(-10px)';
-    card.style.opacity = '0';
-    setTimeout(swapAndSlideIn, 180);
-  } else {
+  if (!direction) {
     card.innerHTML = html;
+    applySideEffects();
+    return;
   }
 
-  document.getElementById('backBtn').style.visibility = path.length > 1 ? 'visible' : 'hidden';
-  renderTrail();
-  if (!document.getElementById('mapPanel').classList.contains('hidden')) renderMap();
+  const FADE_MS = 200;
+  const GROW_MS = 260;
+
+  // lock current height before anything moves, so the collapse/expand animates instead of jumping
+  const startHeight = card.getBoundingClientRect().height;
+  card.style.transition = 'none';
+  card.style.height = startHeight + 'px';
+  void card.offsetWidth;
+  card.style.transition = `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ease`;
+  card.style.transform = direction === 'back' ? 'translateY(10px)' : 'translateY(-10px)';
+  card.style.opacity = '0';
+
+  setTimeout(() => {
+    card.style.transition = 'none';
+    card.innerHTML = html;
+    applySideEffects();
+    const targetHeight = card.scrollHeight;
+    card.style.height = startHeight + 'px'; // stay locked at old height for one more frame
+    card.style.transform = direction === 'back' ? 'translateY(-16px)' : 'translateY(16px)';
+    void card.offsetWidth;
+    card.style.transition = `opacity ${GROW_MS}ms ease, transform ${GROW_MS}ms ease, height ${GROW_MS}ms ease`;
+    card.style.height = targetHeight + 'px';
+    card.style.transform = 'translateY(0)';
+    card.style.opacity = '1';
+    setTimeout(() => {
+      card.style.height = 'auto'; // release the fixed height once settled so it stays responsive
+      card.style.transition = 'none';
+    }, GROW_MS + 20);
+  }, FADE_MS);
+}
+
+const sectionNodes = {
+  cloud: ['open', 'coverage_intro', 'coverage_known', 'pitch_underwriting', 'pitch_coverage', 'qualify_coverage', 'estimate', 'estimate_short', 'book_estimate'],
+  llm: ['llm_platforms', 'pitch_llm'],
+  view: ['visualize_costs', 'pitch_unified', 'pitch_infra', 'book_demo', 'other_platforms', 'pitch_billing']
+};
+
+function renderSectionTabs() {
+  const currentId = path[path.length - 1];
+  const tabs = document.querySelectorAll('#sectionTabs .section-tab');
+  const labels = ['cloud', 'llm', 'view'];
+  tabs.forEach((tab, i) => {
+    const isActive = sectionNodes[labels[i]].includes(currentId);
+    tab.classList.toggle('active', isActive);
+  });
 }
 
 function renderTrail() {
@@ -734,7 +821,7 @@ function trailLabel(id, index) {
 }
 
 function previewFor(node) {
-  const source = node.lines.length ? node.lines[0] : (node.prompt || '');
+  const source = (node.lines.length ? node.lines[0] : (node.prompt || '')).replace(/(<br\s*\/?>)+$/i, '');
   const short = source.length > 80 ? source.slice(0, 80).trim() + '\u2026' : source;
   return (node.tag === 'ask' && !node.lines.length ? short : '\u201c' + short + '\u201d');
 }
@@ -773,66 +860,66 @@ function fcMarkerDefs() {
   </marker></defs>`;
 }
 
-function renderPanel1() {
-  return `<svg viewBox="0 0 660 360" width="100%" role="img">
-    <title>Opening and platform qualification</title>
+function renderPanelCloud() {
+  return `<svg viewBox="0 0 660 540" width="100%" role="img">
+    <title>Cloud pitch flow</title>
     ${fcMarkerDefs()}
     ${fcBox('open', 'fc-decision', 50, 20, 300, 44, 'On AWS, GCP, or Azure?')}
-    ${fcBox('coverage_intro', 'fc-pointer', 400, 20, 220, 44, '\u2192 Commitment path')}
+    ${fcBox('llm_platforms', 'fc-pointer', 400, 20, 220, 44, '\u2192 LLM panel')}
+    ${fcArrow(350, 42, 400, 42, 'no', 358, 34)}
+    ${fcArrow(200, 64, 200, 104, 'yes', 208, 88)}
+
+    ${fcBox('coverage_intro', 'fc-decision', 50, 104, 300, 44, 'Have RIs/SPs/CUDs/SUDs?')}
+    ${fcBox('pitch_underwriting', 'fc-pitch', 400, 104, 220, 56, ['Underwriting pitch', '+ estimate intro'])}
+    ${fcArrow(350, 126, 400, 132, 'no', 358, 118)}
+    ${fcArrow(200, 148, 200, 188, 'yes', 208, 172)}
+
+    ${fcBox('coverage_known', 'fc-decision', 50, 188, 300, 44, 'Know coverage %?')}
+    ${fcBox('visualize_costs', 'fc-pointer', 400, 188, 220, 44, '\u2192 View panel')}
+    ${fcArrow(350, 202, 400, 202, '99%+', 358, 196)}
+    ${fcElbow([[350, 222], [380, 222], [380, 132], [400, 132]], 'not sure', 355, 234)}
+    ${fcArrow(200, 232, 200, 272, '<99%', 206, 256)}
+
+    ${fcBox('pitch_coverage', 'fc-pitch', 50, 272, 300, 56, ['Coverage pitch', '(70-90% typical \u2192 97-99%)'])}
+    ${fcArrow(200, 328, 200, 364, null, 0, 0)}
+
+    ${fcElbow([[510, 160], [580, 160], [580, 344], [300, 344], [300, 364]], null, 0, 0)}
+
+    ${fcBox('estimate_short', 'fc-decision', 50, 364, 300, 44, 'Open to a savings estimate?')}
+    ${fcBox('book_estimate', 'fc-terminal', 400, 364, 220, 44, 'Book estimate')}
+    ${fcArrow(350, 386, 400, 386, 'yes', 358, 378)}
+    ${fcArrow(200, 408, 200, 448, 'no', 208, 432)}
+
+    ${fcBox('visualize_costs', 'fc-pointer', 50, 448, 300, 44, '\u2192 View panel')}
+  </svg>`;
+}
+
+function renderPanelLLM() {
+  return `<svg viewBox="0 0 660 280" width="100%" role="img">
+    <title>LLM pitch flow</title>
+    ${fcMarkerDefs()}
+    ${fcBox('llm_platforms', 'fc-decision', 50, 20, 300, 44, 'Spend on Anthropic/OpenAI APIs?')}
+    ${fcBox('pitch_llm', 'fc-terminal', 400, 20, 220, 44, 'Pitch LLM savings')}
     ${fcArrow(350, 42, 400, 42, 'yes', 358, 34)}
     ${fcArrow(200, 64, 200, 104, 'no', 208, 88)}
 
-    ${fcBox('llm_platforms', 'fc-decision', 50, 104, 300, 44, "Spend on Anthropic/OpenAI APIs?")}
-    ${fcBox('pitch_llm', 'fc-terminal', 400, 104, 220, 44, 'Pitch LLM savings')}
+    ${fcBox('other_platforms', 'fc-decision', 50, 104, 300, 44, 'Use SaaS tools (Datadog, etc.)?')}
+    ${fcBox('pitch_billing', 'fc-terminal', 400, 104, 220, 44, 'Billing pitch')}
     ${fcArrow(350, 126, 400, 126, 'yes', 358, 118)}
     ${fcArrow(200, 148, 200, 188, 'no', 208, 172)}
 
-    ${fcBox('other_platforms', 'fc-decision', 50, 188, 300, 44, 'Oracle, DataDog, or ClickHouse?')}
-    ${fcBox('pitch_billing', 'fc-terminal', 400, 188, 220, 44, 'Billing pitch')}
-    ${fcArrow(350, 210, 400, 210, 'yes', 358, 202)}
-    ${fcArrow(200, 232, 200, 272, 'no', 208, 256)}
-
-    ${fcBox('visualize_costs', 'fc-pointer', 50, 272, 300, 44, '\u2192 Visualize costs (panel 3)')}
+    ${fcBox('visualize_costs', 'fc-pointer', 50, 188, 300, 44, '\u2192 View panel')}
   </svg>`;
 }
 
-function renderPanel2() {
-  return `<svg viewBox="0 0 660 460" width="100%" role="img">
-    <title>Commitment and coverage path</title>
-    ${fcMarkerDefs()}
-    ${fcBox('coverage_intro', 'fc-decision', 50, 20, 300, 44, 'Have RIs/SPs/CUDs/SUDs?')}
-    ${fcBox('pitch_underwriting', 'fc-pitch', 400, 20, 220, 56, ['Underwriting pitch', '+ estimate intro'])}
-    ${fcArrow(350, 42, 400, 48, 'no', 358, 34)}
-    ${fcArrow(200, 64, 200, 104, 'yes', 208, 88)}
-
-    ${fcBox('coverage_known', 'fc-decision', 50, 104, 300, 44, 'Know coverage %?')}
-    ${fcBox('visualize_costs', 'fc-pointer', 400, 104, 220, 44, '\u2192 Visualize costs')}
-    ${fcArrow(350, 118, 400, 118, '99%+', 358, 112)}
-    ${fcElbow([[350, 138], [380, 138], [380, 48], [400, 48]], 'not sure', 355, 150)}
-    ${fcArrow(200, 148, 200, 188, '<99%', 206, 172)}
-
-    ${fcBox('pitch_coverage', 'fc-pitch', 50, 188, 300, 56, ['Coverage pitch', '(70-90% typical \u2192 97-99%)'])}
-    ${fcArrow(200, 244, 200, 280, null, 0, 0)}
-
-    ${fcElbow([[510, 76], [580, 76], [580, 260], [300, 260], [300, 280]], null, 0, 0)}
-
-    ${fcBox('estimate_short', 'fc-decision', 50, 280, 300, 44, 'Open to a savings estimate?')}
-    ${fcBox('book_estimate', 'fc-terminal', 400, 280, 220, 44, 'Book estimate')}
-    ${fcArrow(350, 302, 400, 302, 'yes', 358, 294)}
-    ${fcArrow(200, 324, 200, 364, 'no', 208, 348)}
-
-    ${fcBox('visualize_costs', 'fc-pointer', 50, 364, 300, 44, '\u2192 Visualize costs (panel 3)')}
-  </svg>`;
-}
-
-function renderPanel3() {
+function renderPanelView() {
   return `<svg viewBox="0 0 660 280" width="100%" role="img">
-    <title>Visualization and objection path</title>
+    <title>View pitch flow</title>
     ${fcMarkerDefs()}
     ${fcBox('visualize_costs', 'fc-pitch', 170, 20, 300, 44, 'How do you visualize costs today?')}
     ${fcArrow(320, 64, 320, 104, null, 0, 0)}
 
-    ${fcBox('pitch_unified', 'fc-decision', 170, 104, 300, 56, ['Pump View pitch', 'Still not interested?'])}
+    ${fcBox('pitch_unified', 'fc-decision', 170, 104, 300, 56, ['Pump View pitch', 'still not interested / interested'])}
     ${fcArrow(250, 160, 180, 200, 'still not interested', 130, 182)}
     ${fcArrow(390, 160, 500, 200, 'interested', 420, 182)}
 
@@ -843,12 +930,12 @@ function renderPanel3() {
 
 function renderMap() {
   document.getElementById('mapPanel').innerHTML = `
-    <div class="fc-panel-title">1. Opening &amp; platform qualification</div>
-    ${renderPanel1()}
-    <div class="fc-panel-title">2. Commitment &amp; coverage path</div>
-    ${renderPanel2()}
-    <div class="fc-panel-title">3. Visualization &amp; objection path</div>
-    ${renderPanel3()}
+    <div class="fc-panel-title">Cloud</div>
+    ${renderPanelCloud()}
+    <div class="fc-panel-title">LLM</div>
+    ${renderPanelLLM()}
+    <div class="fc-panel-title">View</div>
+    ${renderPanelView()}
   `;
 }
 
@@ -962,7 +1049,8 @@ const objections = [
   { title: "What's the onboarding timeline?", answer: "Only takes 30 minutes with four easy steps. Initial savings appear within 72 hours due to API lag between Microsoft/Google/AWS and our systems. Full savings ramp up over 2 weeks as we incrementally optimize. We do recommend a side-by-side call early on to validate our assumptions about your future usage.<br><br>We like to say you can onboard and offboard 20 times in a day if you'd like." },
   { title: "What's the catch?", answer: "I totally understand the skepticism - most cost optimization solutions do have hidden fees or percentage-based pricing. With Pump, we're completely free because we're an AWS/GCP/Azure reseller. The cloud providers pay us to improve retention - they've learned that optimized customers stay on their platform longer rather than switching to competitors. We also take billing and support work off their plate." },
   { title: "We need to get legal approval first", answer: "Completely understand - the estimate process actually starts with signing an NDA to protect your data. Our full terms are at pump.co/legal. The whole process takes about 3 minutes: collect info, sign NDA, deploy a read-only CloudFormation stack. Would you prefer we coordinate with your legal team via email, or can we at least run through the NDA today?" },
-  { title: "How much manual work does this add?", answer: "Great question - you have two options. You can turn on autopilot mode where everything happens automatically, or you can manage it manually with email/Slack notifications. Most customers choose autopilot. Plus, you get a dedicated account manager and solutions architect with 8-minute response time and 40-minute resolution time. The initial setup takes about 30 minutes total." }
+  { title: "How much manual work does this add?", answer: "Great question - you have two options. You can turn on autopilot mode where everything happens automatically, or you can manage it manually with email/Slack notifications. Most customers choose autopilot. Plus, you get a dedicated account manager and solutions architect with 8-minute response time and 40-minute resolution time. The initial setup takes about 30 minutes total." },
+  { title: "We don't like working with partners", answer: "First ask why:<br><br>I totally get it - the partnership process has been a mess in years past including our own. The nice part is the hyperscalers have drastically improved the process recently. So now, you don't have to change organizations and we are able to provide you with savings without the hassle of any engineering lift. All it is a switch of the billing email." }
 ];
 
 let openObjection = null;
@@ -1044,13 +1132,11 @@ function toggleObjection(i) {
 function jumpToNode(id) {
   path = [id];
   render('forward');
-  document.getElementById('card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function choose(nextId) {
   path.push(nextId);
   render('forward');
-  document.getElementById('card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function goBack() {
