@@ -192,6 +192,21 @@
   .comp-answer .comp-note div:last-child{margin-bottom:0;}
 
   header{margin-bottom:24px;}
+  .header-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  .theme-toggle{
+    flex-shrink:0;
+    background:var(--card);
+    border:1.5px solid var(--line);
+    color:var(--ink);
+    font-size:13px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:100px;
+    cursor:pointer;
+    font-family:inherit;
+    white-space:nowrap;
+  }
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent-text);background:var(--accent-soft);}
   .eyebrow{
     font-size:12px;
     letter-spacing:.08em;
@@ -446,9 +461,14 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Pump &middot; cold call script</div>
-    <h1>Discovery call navigator</h1>
-    <p class="sub">Click your prospect’s answer as you go. The next line and question load automatically.</p>
+    <div class="header-row">
+      <div>
+        <div class="eyebrow">Pump &middot; cold call script</div>
+        <h1>Discovery call navigator</h1>
+        <p class="sub">Click your prospect’s answer as you go. The next line and question load automatically.</p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Switch between light and dark mode"></button>
+    </div>
   </header>
 
   <div class="trail" id="trail"></div>
@@ -487,7 +507,7 @@ const tree = {
     tag: 'say',
     lines: [
       "Hey [name], this is [you] from Pump.",
-      "Reason I’m calling - I’ve been talking with a bunch of [their job title]’s lately and the one thing they all talked about is how high their cloud bills are climbing. I was just curious if you have experienced the same thing at [Their company]?"
+      "Reason I’m calling - I’ve been talking with a bunch of [their job title]’s lately and the one thing they all talked about is how high their cloud bills are climbing. I was just curious if you have experienced the same thing at [company]?"
     ],
     prompt: "On AWS, GCP, or Azure?",
     options: [
@@ -1149,6 +1169,41 @@ function restart() {
   path = ['open'];
   render('back');
 }
+
+const THEME_KEY = 'pump-script-theme';
+
+function currentTheme() {
+  const set = document.documentElement.getAttribute('data-theme');
+  if (set === 'light' || set === 'dark') return set;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function updateThemeToggle() {
+  const btn = document.getElementById('themeToggle');
+  btn.textContent = currentTheme() === 'dark' ? '\u2600\uFE0E Light mode' : '\u263E Dark mode';
+}
+
+function toggleTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  updateThemeToggle();
+}
+
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+  updateThemeToggle();
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => updateThemeToggle();
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+})();
 
 render();
 renderObjections();
